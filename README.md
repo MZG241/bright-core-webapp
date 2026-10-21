@@ -184,7 +184,7 @@ components/
 db/
 ├── schema.ts              # Tables, enums, indexes
 ├── index.ts               # Neon + Drizzle client
-└── seed.ts                # Admin + 20 sample jobs
+└── seed.ts                # Admin + 3 sample jobs
 
 tests/
 ├── validations.test.ts
