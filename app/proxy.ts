@@ -10,16 +10,16 @@ function getSecret() {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  
   if (pathname === "/login") return NextResponse.next();
 
- 
   const isAdminArea = pathname.startsWith("/admin");
   const isCvApi = pathname.startsWith("/api/cv");
 
   if (!isAdminArea && !isCvApi) return NextResponse.next();
 
   const token = req.cookies.get(SESSION_COOKIE)?.value;
+
+
   if (!token) {
     if (isCvApi) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,14 +27,23 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+
   try {
     await jwtVerify(token, getSecret());
     return NextResponse.next();
   } catch {
     if (isCvApi) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      const res = NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+      res.cookies.delete(SESSION_COOKIE);
+      return res;
     }
-    return NextResponse.redirect(new URL("/login", req.url));
+
+    const res = NextResponse.redirect(new URL("/login", req.url));
+    res.cookies.delete(SESSION_COOKIE);
+    return res;
   }
 }
 

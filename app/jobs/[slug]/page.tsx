@@ -7,6 +7,7 @@ import { jobs } from "@/db/schema";
 import { ApplyForm } from "@/app/(public)/components/ApplyForm";
 import { SiteHeader } from "@/app/components/SiteHeader";
 import { SiteFooter } from "@/app/components/SiteFooter";
+import { getSession } from "@/app/lib/auth";
 
 const EMPLOYMENT_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -30,7 +31,11 @@ export default async function JobDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+
+  const session = await getSession();
   const { slug } = await params;
+
+
 
   const [job] = await db
     .select()
@@ -63,7 +68,7 @@ export default async function JobDetailPage({
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader session={session}/>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-10">
         <Link
           href="/"

@@ -7,6 +7,7 @@ import { Pagination } from "./(public)/components/Pagination";
 import { JobCard } from "./(public)/components/JobCards";
 import { SiteHeader } from "./components/SiteHeader";
 import { SiteFooter } from "./components/SiteFooter";
+import { getSession } from "./lib/auth";
 
 
 const PAGE_SIZE = 8;
@@ -47,6 +48,8 @@ export default async function HomePage({
     gt(jobs.closingDate, new Date()),
   ];
 
+   const session = await getSession();
+
   if (q) {
     conditions.push(
       or(ilike(jobs.title, `%${q}%`), ilike(jobs.location, `%${q}%`))!
@@ -78,7 +81,7 @@ export default async function HomePage({
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader session={session} />
    <section className="w-full bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20 md:py-24 text-center">
           
