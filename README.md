@@ -6,11 +6,12 @@ A recruitment platform built for BrightCore. Candidates browse open roles and ap
 
 ---
 
-## Project Content
+## What's inside
 
 ### For candidates
 
 - A landing page with a hero, live search, and filters by employment type
+- Paginated job listings (8 per page) with search and filters preserved across pages
 - Job detail pages with a sticky application form on desktop
 - Drag-and-drop CV upload (PDF, max 5 MB) with validation and a consent checkbox
 - Automatic "application received" email
@@ -18,12 +19,15 @@ A recruitment platform built for BrightCore. Candidates browse open roles and ap
 ### For admins
 
 - Login with password reset via a 6-digit code
+- Admin avatar in the public header with a dropdown (Dashboard, Sign out) when signed in
 - Dashboard with stats on jobs, applications, and views, plus a table of the latest candidates
 - Create, edit, close, and delete jobs (with confirmation)
+- Open/close toggle directly from the job edit form
+- Paginated job list (10 per page) with search and status filters
 - Rich-text editor (Tiptap) for descriptions, and requirements managed as a tag list
 - Applicants per job, filterable by status, with a side drawer to review each candidate
-- Accept/reject with gan optional note — the candidate gets a matching email
-- Global applications page with status filters, pagination, and the same review drawer
+- Paginated global applications page (15 per page) with status filters
+- Accept/reject with an optional note — the candidate gets a matching email
 - Profile page to update name, email, and password
 
 ---
@@ -105,7 +109,7 @@ npm run db:seed
 This creates:
 
 - **Admin:** `admin@brightcore.test` / `Admin12345`
-- **3 sample jobs** across various fields
+- **3 sample jobs** across various industries
 
 ### 5. Run
 
@@ -144,7 +148,38 @@ npm run test:coverage  # with coverage report
 
 **What's not tested:** Server Actions and email templates. They depend on the database, session cookies, SMTP, and ImageKit. Testing them properly means a test database and mocks for every external call — more setup than value for this project. The pure helpers they rely on are fully covered.
 
+---
 
+## CI/CD with Vercel
+
+Every push to `development` triggers a **Preview Deployment**. Every push to `main` triggers a **Production Deployment**.
+
+**What runs on every PR:**
+
+- `npm install` with a clean lockfile
+- `next build` — full TypeScript compilation + ESLint + static generation check
+- A preview URL is generated and commented on the PR
+- The PR can only be merged if the build passes (required check)
+
+**What doesn't run automatically:**
+
+- `npm test` (Vitest) — would need a separate GitHub Actions workflow. Not configured here, but the 49 tests pass locally with `npm test`.
+
+**Workflow:**
+
+```
+feature branch → development (preview deploy)
+                     ↓
+              Pull Request to main
+                     ↓
+         Vercel build check 
+                     ↓
+                  Merge
+                     ↓
+         main (production deploy)
+```
+
+If the Vercel build fails on a PR, the PR shows a red check and can't be merged until it's fixed.
 
 ---
 
@@ -206,6 +241,8 @@ tests/
 - **No email enumeration** on the forgot-password form. The same success message appears whether or not the email exists.
 - **Server Action body size** is raised to 6 MB in `next.config.ts`, enough for a 5 MB CV plus the rest of the form.
 - **Closing dates** can't be in the past — enforced both client-side (`min` on the date input) and server-side (Zod refine).
+- **Session cleanup** — an invalid or expired JWT cookie is deleted by the proxy before redirecting to `/login`.
+- **Admin redirect** — an authenticated admin visiting `/login` is redirected to `/admin`.
 
 ---
 
@@ -217,7 +254,11 @@ tests/
 - **View counts** go up on every render of the job detail page. There's no per-visitor dedupe because Next.js 16 doesn't let Server Components set cookies. Doing it properly means a client-side effect or a Route Handler.
 - **CVs aren't deleted from ImageKit** when a job is deleted. A production system would add a cleanup job. I left it out and noted it here.
 - **Emails are best-effort.** If SMTP is down, the application or status change still goes through. The error is logged server-side.
-- **Pagination** is implemented on the admin applications page (15 per page) and the public jobs page (8 per page). Applicant lists per job are not paginated — all applicants for a job load at once, which is fine for a few hundred but not for thousands.
+- **Pagination** is implemented on:
+  - Public jobs page (8 per page, search and type filters preserved)
+  - Admin jobs list (10 per page, search and status filters)
+  - Admin applications page (15 per page, status filter)
+  
 
 ---
 
@@ -225,13 +266,14 @@ tests/
 
 - **Integration tests** for the Server Actions, with a throwaway Postgres. Would cover `submitApplication` and `updateApplicationStatus` end-to-end.
 - **Playwright** for the happy path: browse → apply → admin login → accept.
+- **GitHub Actions** workflow to run `npm test` on every PR, alongside the Vercel build check.
 - **Cleanup job** for orphan CVs on ImageKit after a job is deleted.
 - **Pagination** on the per-job applicant list.
 - **Optimistic UI** for status changes in the drawer, instead of a full `router.refresh()`.
 - **Rate limiting** on the apply form. Currently only the forgot-password flow is throttled.
 - **Audit log** for admin actions — who changed what, when.
 - **Email templates** as React components (`@react-email/components`) instead of inline HTML strings.
-- **CI pipeline** (GitHub Actions) running lint, typecheck, and tests on every push.
+- **CI pipeline** running lint, typecheck, and tests on every push.
 
 ---
 
@@ -249,7 +291,7 @@ tests/
 | `npm run db:push` | Push the schema to Neon |
 | `npm run db:generate` | Generate SQL migrations |
 | `npm run db:studio` | Open Drizzle Studio |
-| `npm run db:seed` | Seed admin + 3 sample jobs |
+| `npm run db:seed` | Seed admin + 20 sample jobs |
 
 ---
 
@@ -261,3 +303,4 @@ Password: Admin12345
 ```
 
 The seed also creates 3 sample jobs, so the public site isn't empty on first run.
+
