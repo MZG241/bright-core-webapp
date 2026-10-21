@@ -22,7 +22,7 @@ A recruitment platform built for BrightCore. Candidates browse open roles and ap
 - Create, edit, close, and delete jobs (with confirmation)
 - Rich-text editor (Tiptap) for descriptions, and requirements managed as a tag list
 - Applicants per job, filterable by status, with a side drawer to review each candidate
-- Accept/reject with an optional note — the candidate gets a matching email
+- Accept/reject with gan optional note — the candidate gets a matching email
 - Global applications page with status filters, pagination, and the same review drawer
 - Profile page to update name, email, and password
 
@@ -105,9 +105,7 @@ npm run db:seed
 This creates:
 
 - **Admin:** `admin@brightcore.test` / `Admin12345`
-- **20 sample jobs** across engineering, design, data, marketing, finance, legal, HR, and operations
-
-> **Security note:** these are development credentials. Change them before deploying to production.
+- **3 sample jobs** across various fields
 
 ### 5. Run
 
@@ -146,7 +144,7 @@ npm run test:coverage  # with coverage report
 
 **What's not tested:** Server Actions and email templates. They depend on the database, session cookies, SMTP, and ImageKit. Testing them properly means a test database and mocks for every external call — more setup than value for this project. The pure helpers they rely on are fully covered.
 
-> **Note:** `lib/sanitize.ts` doesn't import `server-only`. Vitest runs outside the Next.js runtime and can't resolve that package. The sanitizer only runs inside Server Actions anyway, so it never reaches the client bundle.
+
 
 ---
 
@@ -263,5 +261,3 @@ Password: Admin12345
 ```
 
 The seed also creates 3 sample jobs, so the public site isn't empty on first run.
-
-> **Important:** use these credentials only in a local or disposable demo environment. Configure secure credentials before deploying.
