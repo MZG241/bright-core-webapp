@@ -6,7 +6,7 @@ A recruitment platform built for BrightCore. Candidates browse open roles and ap
 
 ---
 
-## What's inside
+## Project Content
 
 ### For candidates
 
