@@ -291,7 +291,7 @@ tests/
 | `npm run db:push` | Push the schema to Neon |
 | `npm run db:generate` | Generate SQL migrations |
 | `npm run db:studio` | Open Drizzle Studio |
-| `npm run db:seed` | Seed admin + 20 sample jobs |
+| `npm run db:seed` | Seed admin + 3 sample jobs |
 
 ---
 
